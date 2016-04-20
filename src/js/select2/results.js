@@ -358,7 +358,7 @@ define([
     container.on('results:next', function () {
       var $highlighted = self.getHighlightedResults();
 
-      var $options = self.$results.find('[-selected]');
+      var $options = self.$results.find('[data-selected]');
 
       var currentIndex = $options.index($highlighted);
 
