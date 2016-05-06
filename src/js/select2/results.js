@@ -14,7 +14,7 @@ define([
 
   Results.prototype.render = function () {
     var $results = $(
-      '<ul class="select2-results__options" role="tree"></ul>'
+      '<ul class="select2-results__options" role="listbox"></ul>'
     );
 
     if (this.options.get('multiple')) {
@@ -37,7 +37,7 @@ define([
     this.hideLoading();
 
     var $message = $(
-      '<li role="treeitem" aria-live="assertive"' +
+      '<li role="option" aria-live="assertive"' +
       ' class="select2-results__option"></li>'
     );
 
@@ -106,7 +106,7 @@ define([
       });
 
       var $options = self.$results
-        .find('.select2-results__option[aria-selected]');
+        .find('.select2-results__option[data-selected]');
 
       $options.each(function () {
         var $option = $(this);
@@ -118,13 +118,13 @@ define([
 
         if ((item.element != null && item.element.selected) ||
             (item.element == null && $.inArray(id, selectedIds) > -1)) {
-          $option.attr('aria-selected', 'true');
+          $option.attr('data-selected', 'true');
         } else {
-          $option.attr('aria-selected', 'false');
+          $option.attr('data-selected', 'false');
         }
       });
 
-      var $selected = $options.filter('[aria-selected=true]');
+      var $selected = $options.filter('[data-selected=true]');
 
       // Check if there are any selected options
       if ($selected.length > 0) {
@@ -163,17 +163,17 @@ define([
     option.className = 'select2-results__option';
 
     var attrs = {
-      'role': 'treeitem',
-      'aria-selected': 'false'
+      'role': 'option',
+      'data-selected': 'false'
     };
 
     if (data.disabled) {
-      delete attrs['aria-selected'];
+      delete attrs['data-selected'];
       attrs['aria-disabled'] = 'true';
     }
 
     if (data.id == null) {
-      delete attrs['aria-selected'];
+      delete attrs['data-selected'];
     }
 
     if (data._resultId != null) {
@@ -187,7 +187,7 @@ define([
     if (data.children) {
       attrs.role = 'group';
       attrs['aria-label'] = data.text;
-      delete attrs['aria-selected'];
+      delete attrs['data-selected'];
     }
 
     for (var attr in attrs) {
@@ -312,7 +312,7 @@ define([
 
       var data = $highlighted.data('data');
 
-      if ($highlighted.attr('aria-selected') == 'true') {
+      if ($highlighted.attr('data-selected') === 'true') {
         self.trigger('close', {});
       } else {
         self.trigger('select', {
@@ -324,7 +324,7 @@ define([
     container.on('results:previous', function () {
       var $highlighted = self.getHighlightedResults();
 
-      var $options = self.$results.find('[aria-selected]');
+      var $options = self.$results.find('[data-selected]');
 
       var currentIndex = $options.index($highlighted);
 
@@ -358,7 +358,7 @@ define([
     container.on('results:next', function () {
       var $highlighted = self.getHighlightedResults();
 
-      var $options = self.$results.find('[aria-selected]');
+      var $options = self.$results.find('[data-selected]');
 
       var currentIndex = $options.index($highlighted);
 
@@ -386,7 +386,9 @@ define([
     });
 
     container.on('results:focus', function (params) {
-      params.element.addClass('select2-results__option--highlighted');
+      params.element
+        .addClass('select2-results__option--highlighted')
+        .attr('aria-selected', 'true');
     });
 
     container.on('results:message', function (params) {
@@ -418,13 +420,13 @@ define([
       });
     }
 
-    this.$results.on('mouseup', '.select2-results__option[aria-selected]',
+    this.$results.on('mouseup', '.select2-results__option[data-selected]',
       function (evt) {
       var $this = $(this);
 
       var data = $this.data('data');
 
-      if ($this.attr('aria-selected') === 'true') {
+      if ($this.attr('data-selected') === 'true') {
         if (self.options.get('multiple')) {
           self.trigger('unselect', {
             originalEvent: evt,
@@ -443,12 +445,13 @@ define([
       });
     });
 
-    this.$results.on('mouseenter', '.select2-results__option[aria-selected]',
+    this.$results.on('mouseenter', '.select2-results__option[data-selected]',
       function (evt) {
       var data = $(this).data('data');
 
       self.getHighlightedResults()
-          .removeClass('select2-results__option--highlighted');
+          .removeClass('select2-results__option--highlighted')
+          .removeAttr('aria-selected');
 
       self.trigger('results:focus', {
         data: data,
@@ -475,7 +478,7 @@ define([
       return;
     }
 
-    var $options = this.$results.find('[aria-selected]');
+    var $options = this.$results.find('[data-selected]');
 
     var currentIndex = $options.index($highlighted);
 
